@@ -2,10 +2,10 @@ import numpy as np
 from gurobipy import GRB, LinExpr, Model
 
 
-def find_ranking(comparisons, equal_width=0.2, max_rank=-1):
+def find_ranking(comparisons, equal_width=0.2, max_rank=-1, verbose=False):
     """
-    Find minimal changes to a set of comparisons so that they are consistent
-    (transitive), it return a topological ranking.
+    Find the least changes to a set of comparisons so that they are consistent
+    (transitive), it returns a topological ranking.
 
     comparisons     A dictionary with tuple keys in the form of (i, j), values
                     are scalars indicating the probability of i > j. It is
@@ -15,6 +15,7 @@ def find_ranking(comparisons, equal_width=0.2, max_rank=-1):
                     is considered '>='. In between it is considered to be '=='.
     max_rank        Maximal rank, a low value forces the model to choose more
                     equal cases.
+    verbose         Whether to print gurobi's progress.
 
     Returns:
         A tuple of size two:
@@ -30,6 +31,7 @@ def find_ranking(comparisons, equal_width=0.2, max_rank=-1):
 
     # define variables
     model = Model('comparison')
+    model.setParam('OutputFlag', verbose)
     values = np.fromiter(comparisons.values(), dtype=float)
     assert values.max() <= 1 and values.min() >= 0
     # variables to encode the error of comparisons
@@ -178,6 +180,7 @@ def find_ranking(comparisons, equal_width=0.2, max_rank=-1):
 
     # find minimal Rs
     model_ = Model('comparison')
+    model_.setParam('OutputFlag', verbose)
     R_i = model_.addVars(nodes, name='r_i', vtype=GRB.CONTINUOUS, lb=0,
                          ub=len(nodes))
     for ((i, j), ge_ij), le_ij in zip(Ge_ij.items(), Le_ij.values()):
@@ -191,4 +194,4 @@ def find_ranking(comparisons, equal_width=0.2, max_rank=-1):
     model_.optimize()
 
     return [model_.getVarByName(f'r_i[{i}]').X for i in range(len(nodes))], \
-        model.getObjective().getValue()
+        model.objVal

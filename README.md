@@ -6,7 +6,7 @@ Comparisons (i, j) are represented by a number between 0 and 1, where 0 indicate
 MILPs are solved with [gurobi](http://www.gurobi.com/).
 
 ## Example
-Assume we have three nodes we want to compare (A, B, C) and we have the following comparisons: A <= C and B >= C. To use the `milp_ranker`, the node names have to be integers (A=0, B=1, C=2).
+Assume we have three nodes we want to rank (A, B, C) and we have the following comparisons: A <= C and B >= C. To use the `milp_ranker`, the node names have to be integers (A=0, B=1, C=2).
 
 ```python
 from milp_ranker import find_ranking
